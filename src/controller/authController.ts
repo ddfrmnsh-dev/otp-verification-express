@@ -25,7 +25,52 @@ const singup = async (req: Request, res: Response) => {
                 message: 'User already exists',
               });
         }
+
+        const response = await prisma.otp.findMany({
+            where:{
+                email
+            },
+            orderBy: {
+                cretedAt: 'desc'
+            },
+            take: 1
+            })
+
+            if(response.length === 0 || otp !== response[0].otp) {
+            return res.status(400).json({
+                success: false,
+                message: 'The OTP is not valid',
+            });
+            }
+
+            let hashPassword;
+            try {
+                hashPassword = await bcrypt.hash(password, 10);
+            } catch (error) {
+                 return res.status(500).json({
+                    success: false,
+                    message: `Hashing password error for ${password}: ` + error,
+                });
+            }
+
+            const newUser = await prisma.user.create({
+                data: {
+                    name,
+                    email,
+                    password: hashPassword,
+                },
+            })
+            return res.status(201).json({
+            success: true,
+            message: 'User registered successfully',
+            user: newUser,
+            });
     } catch (error) {
-        
+        console.log(error);
+        return res.status(500).json({ success: false, error: error });
     }
+}
+
+export default{ 
+    singup
 }

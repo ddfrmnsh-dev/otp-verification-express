@@ -1,6 +1,7 @@
 import { mailSender } from "../utils/mailSender";
 async function sendVerfivationEmail(email:string, otp:string) {
     try {
+        console.log("Sending email to: ", email);
         const mailRes = await mailSender(
             email,
             "Verification Email",
@@ -12,4 +13,8 @@ async function sendVerfivationEmail(email:string, otp:string) {
         console.log("Error occurred while sending email: ", error);
         throw error;
     }
+}
+
+export {
+    sendVerfivationEmail
 }

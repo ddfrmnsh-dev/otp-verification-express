@@ -1,6 +1,7 @@
 import otpGenerator from 'otp-generator';
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { sendVerfivationEmail } from '../models/otpModel';
 
 const prisma = new PrismaClient();
 
@@ -21,7 +22,7 @@ const sendOtp = async (req: Request,res: Response) => {
         }
 
         let otp = otpGenerator.generate(6, { 
-            upperCaseAlphabets: true, 
+            upperCaseAlphabets: false, 
             lowerCaseAlphabets: false, 
             specialChars: false 
         });
@@ -41,17 +42,17 @@ const sendOtp = async (req: Request,res: Response) => {
             })
         }
         // const otpPayload= { email, otp}
-        const otpBody = await prisma.otp.create(
-           {
-            data : {
+        const saveOtp = await prisma.otp.create({
+            data: {
                 email,
                 otp
             }
-           })
+        })
+        const otpBody = await sendVerfivationEmail(email, otp);
         res.status(200).json({
             success: true,
             message: 'OTP sent successfully',
-            otp
+            otp,
             })
     } catch (error) {
         console.log(error);
@@ -59,4 +60,4 @@ const sendOtp = async (req: Request,res: Response) => {
     }
 }
 
-export {sendOtp}
+export default {sendOtp}

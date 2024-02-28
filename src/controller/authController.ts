@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 const singup = async (req: Request, res: Response) => {
     try {
-        const { name, email, password, otp } = req.body;
+        const { name, email, password, otp, role } = req.body;
         if (!name || !email || !password || !otp) {
             return res.status(403).json({
               success: false,
@@ -58,6 +58,7 @@ const singup = async (req: Request, res: Response) => {
                     name,
                     email,
                     password: hashPassword,
+                    role
                 },
             })
             return res.status(201).json({
